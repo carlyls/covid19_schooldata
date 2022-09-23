@@ -7,3 +7,4 @@ The code in this repository is used in the paper entitled "Consistency between h
 "comparing_datasets_analysis_23Sep2022" contains code to make the plots and analyses described in the paper.
 
 To access the individual-level data, publicly available data can be found at https://osf.io/tpwqf/. Two other datasets are available if granted access, and they can be requested through the Delphi Group at CMU (https://delphi.cmu.edu/covidcast/) and Burbio (https://about.burbio.com/school-opening-tracker).
+Data was also used from the US Census Bureau; the primary datasets can be found at https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-detail.html.
