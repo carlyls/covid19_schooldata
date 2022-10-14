@@ -197,67 +197,7 @@ scdl_burb <- all_top_county %>%
   geom_abline(slope=1,intercept=0)
 ggarrange(ctis_burb,ctis_scdl,scdl_burb)
 
-# figure not averaged
-ctis_burb2 <- all_top_county %>%
-  ggplot(aes(x=AnyInPerson.Burbio,
-             y=AnyInPerson.FB.weight,
-             size=County.Pop/1000,
-             color=factor(month,levels=c("12","1","2","3","4","5")))) +
-  geom_point() +
-  xlab("Burbio Percent") + ylab("CTIS Percent") +
-  ylim(0,100) +
-  labs(size = "Population (1000s)",
-       color = "Month") +
-  theme(axis.text.x = element_text(size=13),
-        axis.text.y = element_text(size=13),
-        axis.title = element_text(size=13),
-        panel.background = element_rect(fill="white",colour="grey"),
-        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                        colour = "grey"), 
-        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                        colour = "grey")) +
-  geom_abline(slope=1,intercept=0)
-ctis_scdl2 <- all_top_county %>%
-  ggplot(aes(x=AnyInPerson.Phone,
-             y=AnyInPerson.FB.weight,
-             size=County.Pop/1000,
-             color=factor(month,levels=c("12","1","2","3","4","5")))) +
-  geom_point() +
-  xlab("SCDL Percent") + ylab("CTIS Percent") +
-  ylim(0,100) +
-  labs(size = "Population (1000s)",
-       color = "Month") +
-  theme(axis.text.x = element_text(size=13),
-        axis.text.y = element_text(size=13),
-        axis.title = element_text(size=13),
-        panel.background = element_rect(fill="white",colour="grey"),
-        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                        colour = "grey"), 
-        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                        colour = "grey")) +
-  geom_abline(slope=1,intercept=0)
-scdl_burb2 <- all_top_county %>%
-  ggplot(aes(x=AnyInPerson.Burbio,
-             y=AnyInPerson.Phone,
-             size=County.Pop/1000,
-             color=factor(month,levels=c("12","1","2","3","4","5")))) +
-  geom_point() +
-  xlab("Burbio Percent") + ylab("SCDL Percent") +
-  ylim(0,100) +
-  labs(size = "Population (1000s)",
-       color = "Month") +
-  theme(axis.text.x = element_text(size=13),
-        axis.text.y = element_text(size=13),
-        axis.title = element_text(size=13),
-        panel.background = element_rect(fill="white",colour="grey"),
-        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                        colour = "grey"), 
-        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                        colour = "grey")) +
-  geom_abline(slope=1,intercept=0)
-ggarrange(ctis_burb2,ctis_scdl2,scdl_burb2)
-
-# other figure
+# appendix histograms
 figure2dat <- all_top_county %>%
   mutate(CTIS_Burb = AnyInPerson.FB.weight-AnyInPerson.Burbio,
          CTIS_SCDL = AnyInPerson.FB.weight-AnyInPerson.Phone,
@@ -412,7 +352,7 @@ rownames(all_desc_table) <- c("CTIS","Burbio","SCDL","Population","Black",
                               "Employed.Essential","Computer.HH","AdultwHSdeg","Unemploy.Rate",
                               "monthly_cases","monthly_deaths")
 desc <- cbind(top_desc_table,all_desc_table)
-write.csv(desc,"Table 3. Descriptives.csv")
+#write.csv(desc,"Table 3. Descriptives.csv")
 
 
 # correlations
@@ -441,11 +381,6 @@ top_county_factors_long$Source <- ifelse(top_county_factors_long$Source=="AnyInP
                                          ifelse(top_county_factors_long$Source=="AnyInPerson.FB.weight","CTIS","SCDL"))
 top_county_factors_long$Source <- factor(top_county_factors_long$Source, levels=c("CTIS","Burbio","SCDL"))
 top_county_factors_long$month <- factor(top_county_factors_long$month, levels=c("12","1","2","3","4","5"))
-reg_diff <- lm(PercentOnsite ~ Source*month + Source*White + Source*PubAssist.HH + Source*WorkAtHome + Source*GINI + Source*PopPerSqMile +
-             Source*Employed.Essential + Source*Computer.HH + Source*AdultwHSdeg + Source*Unemploy.Rate + Source*cases_perpop,
-           weights = County.Pop,
-           data = top_county_factors_long)
-summary(reg_diff)
 
 ## mixed effects model
 library(lme4)
@@ -455,49 +390,6 @@ reg_diff_mixed <- lmer(PercentOnsite ~ Source*month + Source*White + Source*PubA
                weights = log(County.Pop),
                data = top_county_factors_long)
 summary(reg_diff_mixed)
-
-library(gtsummary)
-tbl_regression(reg_diff)
-tbl_regression(reg_diff, label = c("Intercept","Source [Burbio]","Source [SCDL]","month [Jan]","month [Feb]",
-                                                     "month [Mar]","month [Apr]","month [May]","% White","% on Public Assistance",
-                                                     "% Working at Home","GINI","Population Density","% Essential Employees",
-                                                     "% with Computers","% Adults with High School Degree","Unemployment Rate",
-                                                     "Cases per Population","Source [Burbio] * month [Jan]","Source [SCDL] * month [Jan]",
-                                                     "Source [Burbio] * month [Feb]","Source [SCDL] * month [Feb]",
-                                                     "Source [Burbio] * month [Mar]","Source [SCDL] * month [Mar]",
-                                                     "Source [Burbio] * month [Apr]","Source [SCDL] * month [Apr]",
-                                                     "Source [Burbio] * month [May]","Source [SCDL] * month [May]",
-                                                     "Source [Burbio] * White","Source [SCDL] * White","Source [Burbio] * % on Public Assistance",
-                                                     "Source [SCDL] * % on Public Assistance","Source [Burbio] * % Working at Home",
-                                                     "Source [SCDL] * % Working at Home","Source [Burbio] * GINI","Source [SCDL] * GINI",
-                                                     "Source [Burbio] * Population Density","Source [SCDL] * Population Density",
-                                                     "Source [Burbio] * % Essential Employees","Source [SCDL] * % Essential Employees",
-                                                     "Source [Burbio] * % with Computers","Source [SCDL] * % with Computers",
-                                                     "Source [Burbio] * % Adults with High School Degree","Source [SCDL] * % Adults with High School Degree",
-                                                     "Source [Burbio] * Unemployment Rate","Source [SCDL] * Unemployment Rate",
-                                                     "Source [Burbio] * Cases per Population","Source [SCDL] * Cases per Population"))
-setwd("~/Desktop")
-tab_model(reg_diff_mixed, ci.hyphen = "&comma;&nbsp", file = "RegResults.html",
-          pred.labels = c("Intercept","Source [Burbio]","Source [SCDL]","month [Jan]","month [Feb]",
-                                    "month [Mar]","month [Apr]","month [May]","% White","% on Public Assistance",
-                                    "% Working at Home","GINI","Population Density","% Essential Employees",
-                                    "% with Computers","% Adults with High School Degree","Unemployment Rate",
-                                    "Cases per Population","Source [Burbio] * month [Jan]","Source [SCDL] * month [Jan]",
-                                    "Source [Burbio] * month [Feb]","Source [SCDL] * month [Feb]",
-                                    "Source [Burbio] * month [Mar]","Source [SCDL] * month [Mar]",
-                                    "Source [Burbio] * month [Apr]","Source [SCDL] * month [Apr]",
-                                    "Source [Burbio] * month [May]","Source [SCDL] * month [May]",
-                                    "Source [Burbio] * White","Source [SCDL] * White","Source [Burbio] * % on Public Assistance",
-                                    "Source [SCDL] * % on Public Assistance","Source [Burbio] * % Working at Home",
-                                    "Source [SCDL] * % Working at Home","Source [Burbio] * GINI","Source [SCDL] * GINI",
-                                    "Source [Burbio] * Population Density","Source [SCDL] * Population Density",
-                                    "Source [Burbio] * % Essential Employees","Source [SCDL] * % Essential Employees",
-                                    "Source [Burbio] * % with Computers","Source [SCDL] * % with Computers",
-                                    "Source [Burbio] * % Adults with High School Degree","Source [SCDL] * % Adults with High School Degree",
-                                    "Source [Burbio] * Unemployment Rate","Source [SCDL] * Unemployment Rate",
-                                    "Source [Burbio] * Cases per Population","Source [SCDL] * Cases per Population"))
-
-
 
 
 ### DISTRICT COMPARISONS ###
